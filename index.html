@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MythVerse - Immersive Mythological Experience</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+
+        :root {
+            --deep-indigo: #1a237e;
+            --crimson: #d32f2f;
+            --gold: #ffd700;
+            --dark-gray: #121212;
+            --light-gold: #ffe566;
+            --mystic-purple: #9c27b0;
+            --cosmic-blue: #0d47a1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background: var(--dark-gray);
+            color: #fff;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Preloader */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .preloader-content {
+            text-align: center;
+        }
+
+        .loader-symbol {
+            width: 100px;
+            height: 100px;
+            border: 4px solid var(--gold);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Explore Button */
+        .explore-btn {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            background: transparent;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .explore-btn:hover {
+            background: var(--gold);
+            color: var(--dark-gray);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .explore-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255, 215, 0, 0.1);
+            transform: translate(-50%, -50%) rotate(45deg);
+            transition: transform 0.6s ease;
+        }
+
+        .explore-btn:hover::before {
+            transform: translate(-50%, -50%) rotate(90deg);
+        }
+
+        /* Particle Background */
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.2s ease;
+        }
+
+        .cursor-trail {
+            width: 8px;
+            height: 8px;
+            background: var(--light-gold);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.6;
+        }
+
+        /* Navigation */
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 1rem;
+            background: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(10px);
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-visible {
+            transform: translateY(0);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: #fff;
+            text-decoration: none;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--cosmic-blue), var(--mystic-purple));
+            opacity: 0.8;
+            z-index: -1;
+        }
+
+        .hero-content {
+            text-align: center;
+            padding: 2rem;
+            max-width: 800px;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .hero h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            color: var(--gold);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: 0.2em;
+            font-weight: 800;
+        }
+
+        .hero p {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        /* Character Grid */
+        .character-section {
+            padding: 6rem 2rem;
+            position: relative;
+        }
+
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .character-card {
+            background: rgba(255,255,255,0.05);
+            padding: 2rem;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .character-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,215,0,0.1));
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .character-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .character-card:hover::before {
+            opacity: 1;
+        }
+
+        .character-card h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .character-content {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Stories Section */
+        .stories-section {
+            padding: 6rem 2rem;
+            background: linear-gradient(to bottom, var(--dark-gray), var(--cosmic-blue));
+        }
+
+        .story-carousel {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            height: 400px;
+            perspective: 1000px;
+        }
+
+        .story-card {
+            position: absolute;
+            width: 300px;
+            height: 400px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.5s ease;
+            transform-style: preserve-3d;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+            
+            .hero p {
+                font-size: 1.4rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .character-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Dark Mode Styles */
+        [data-theme="dark"] {
+            --text-primary: #ffffff;
+            --bg-primary: #121212;
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-gray);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--light-gold);
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 8rem 2rem;
+            background: linear-gradient(to bottom, var(--dark-gray), var(--deep-indigo));
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+        }
+
+        .section-header p {
+            font-size: 1.5rem;
+            color: var(--light-gold);
+            font-style: italic;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.05);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: #fff;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Realms Section */
+        .realms-section {
+            padding: 8rem 2rem;
+            background: linear-gradient(to bottom, var(--deep-indigo), var(--mystic-purple));
+        }
+
+        .realms-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .realm-card {
+            height: 400px;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.5s ease;
+        }
+
+        .realm-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.8));
+        }
+
+        .realm-card[data-realm="celestial"] {
+            background: url('https://source.unsplash.com/random/800x1200/?cosmos') center/cover;
+        }
+
+        .realm-card[data-realm="underworld"] {
+            background: url('https://source.unsplash.com/random/800x1200/?cave') center/cover;
+        }
+
+        .realm-card[data-realm="mortal"] {
+            background: url('https://source.unsplash.com/random/800x1200/?ancient-city') center/cover;
+        }
+
+        .realm-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem;
+            transform: translateY(20px);
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+
+        .realm-card:hover .realm-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .realm-content h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .realm-content p {
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        /* Newsletter Section */
+        .newsletter-section {
+            padding: 6rem 2rem;
+            background: linear-gradient(to bottom, var(--mystic-purple), var(--dark-gray));
+            text-align: center;
+        }
+
+        .newsletter-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .newsletter-content h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .newsletter-content p {
+            color: #fff;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--gold);
+            background: transparent;
+            color: #fff;
+            border-radius: 5px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+        }
+
+        .newsletter-form input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .subscribe-btn {
+            padding: 1rem 2rem;
+            background: var(--gold);
+            border: none;
+            color: var(--dark-gray);
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .subscribe-btn:hover {
+            background: var(--light-gold);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .site-footer {
+            background: var(--dark-gray);
+            padding: 4rem 2rem 2rem;
+            color: #fff;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-section h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-section p {
+            color: rgba(255,255,255,0.8);
+            line-height: 1.6;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-section ul a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul a:hover {
+            color: var(--gold);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-link {
+            color: var(--gold);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--gold);
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: var(--gold);
+            color: var(--dark-gray);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .footer-bottom p {
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Mobile Optimizations Update */
+        @media (max-width: 768px) {
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+            }
+
+            .subscribe-btn {
+                width: 100%;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
+
+            .realm-card {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader">
+        <div class="preloader-content">
+            <div class="loader-symbol"></div>
+            <h2>Entering MythVerse</h2>
+        </div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-trail"></div>
+
+    <!-- Particle Background -->
+    <div id="particles-js"></div>
+
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav-content">
+            <a href="#" class="nav-logo">MythVerse</a>
+            <div class="nav-links">
+                <a href="#stories" class="nav-link">Stories</a>
+                <a href="#characters" class="nav-link">Characters</a>
+                <a href="#realms" class="nav-link">Realms</a>
+                <a href="#profile" class="nav-link">Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-background"></div>
+        <div class="hero-content">
+            <h1>MythVerse</h1>
+            <p>Journey Through Ancient Tales</p>
+            <button class="explore-btn">Begin Your Journey</button>
+        </div>
+    </section>
+
+    <!-- Character Section -->
+    <section class="character-section" id="characters">
+        <div class="character-grid">
+            <!-- Character cards will be dynamically populated -->
+        </div>
+    </section>
+
+    <!-- Stories Section -->
+    <section class="stories-section" id="stories">
+        <div class="story-carousel">
+            <!-- Story cards will be dynamically populated -->
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="section-header">
+            <h2>Divine Features</h2>
+            <p>Discover the powers that await</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🏛️</div>
+                <h3>Ancient Wisdom</h3>
+                <p>Access timeless knowledge from various mythological traditions</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚔️</div>
+                <h3>Epic Quests</h3>
+                <p>Embark on legendary journeys across divine realms</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔮</div>
+                <h3>Divine Powers</h3>
+                <p>Master mystical abilities and cosmic forces</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌟</div>
+                <h3>Celestial Rewards</h3>
+                <p>Earn divine favors and mythical artifacts</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Realms Section -->
+    <section class="realms-section" id="realms">
+        <div class="section-header">
+            <h2>Mythical Realms</h2>
+            <p>Journey through divine dimensions</p>
+        </div>
+        <div class="realms-container">
+            <div class="realm-card" data-realm="celestial">
+                <div class="realm-content">
+                    <h3>Celestial Kingdom</h3>
+                    <p>Where gods and immortals dwell among the stars</p>
+                </div>
+            </div>
+            <div class="realm-card" data-realm="underworld">
+                <div class="realm-content">
+                    <h3>Mystic Underworld</h3>
+                    <p>Ancient secrets hidden in shadowy depths</p>
+                </div>
+            </div>
+            <div class="realm-card" data-realm="mortal">
+                <div class="realm-content">
+                    <h3>Mortal Lands</h3>
+                    <p>Where legends are born and heroes rise</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+        <div class="newsletter-content">
+            <h2>Join the Divine Chronicle</h2>
+            <p>Receive celestial updates and mythical tales</p>
+            <form class="newsletter-form">
+                <input type="email" placeholder="Enter your email" required>
+                <button type="submit" class="subscribe-btn">Subscribe</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>MythVerse</h3>
+                <p>Journey through ancient tales and legendary realms</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#stories">Stories</a></li>
+                    <li><a href="#characters">Characters</a></li>
+                    <li><a href="#realms">Realms</a></li>
+                    <li><a href="#features">Features</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect</h3>
+                <div class="social-links">
+                    <a href="#" class="social-link">Discord</a>
+                    <a href="#" class="social-link">Twitter</a>
+                    <a href="#" class="social-link">Instagram</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 MythVerse. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Preloader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.preloader').style.opacity = 0;
+                setTimeout(() => {
+                    document.querySelector('.preloader').style.display = 'none';
+                }, 500);
+            }, 1500);
+        });
+
+        // Particle.js Configuration
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: '#ffd700' },
+                shape: { type: 'circle' },
+                opacity: { value: 0.5, random: true },
+                size: { value: 3, random: true },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#ffd700',
+                    opacity: 0.2,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: 'none',
+                    random: true,
+                    out_mode: 'out'
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: { enable: true, mode: 'grab' },
+                    onclick: { enable: true, mode: 'push' },
+                    resize: true
+                }
+            }
+        });
+
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const cursorTrail = document.querySelector('.cursor-trail');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                cursorTrail.style.left = e.clientX + 'px';
+                cursorTrail.style.top = e.clientY + 'px';
+            }, 100);
+        });
+
+        // Navigation Scroll Effect
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            const nav = document.querySelector('.nav-container');
+            
+            if (currentScroll <= 0) {
+                nav.classList.remove('nav-visible');
+            }
+            if (currentScroll > lastScroll && currentScroll > 50) {
+                nav.classList.remove('nav-visible');
+            }
+            if (currentScroll < lastScroll) {
+                nav.classList.add('nav-visible');
+            }
+            lastScroll = currentScroll;
+        });
+
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Hero Animation
+        gsap.to('.hero-content', {
+            opacity: 1,
+            y: 0,
+            duration: 1.5,
+            ease: 'power4.out',
+            delay: 0.5
+        });
+
+        // Character Cards Animation
+        const characterData = [
+            { name: 'Arjuna', description: 'The skilled archer with unwavering focus' },
+            { name: 'Krishna', description: 'Divine charioteer and master of cosmic dance' },
+            { name: 'Draupadi', description: 'Queen of five kingdoms, wielder of divine fire' },
+            { name: 'Karna', description: 'The unsung hero born of the sun' },
+            { name: 'Parvati', description: 'The mountain goddess who conquered the unconquerable' }
+        ];
+
+        // Dynamically create character cards with GSAP animations
+        const characterGrid = document.querySelector('.character-grid');
+        characterData.forEach((char, index) => {
+            const card = document.createElement('div');
+            card.className = 'character-card';
+            card.innerHTML = `
+                <h3>${char.name}</h3>
+                <div class="character-content">
+                    <p>${char.description}</p>
+                    <div class="character-stats">
+                        <div class="power-level" style="width: ${Math.random() * 100}%"></div>
+                    </div>
+                </div>
+            `;
+            characterGrid.appendChild(card);
+
+            // GSAP animation for each card
+            gsap.to(card, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                delay: 0.2 * index,
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top bottom-=100',
+                    toggleActions: 'play none none reverse'
+                }
+            });
+
+            // Animate card content
+            gsap.to(card.querySelector('.character-content'), {
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                delay: 0.3 * index,
+                ease: 'power2.out',
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top bottom-=50',
+                    toggleActions: 'play none none reverse'
+                }
+            });
+        });
+
+        // Story System
+        class StorySystem {
+            constructor() {
+                this.currentPath = [];
+                this.storyNodes = {
+                    start: {
+                        text: "Where shall your journey begin?",
+                        choices: [
+                            { text: "The Divine Courts", next: "divineRealm" },
+                            { text: "Mortal Kingdoms", next: "mortalRealm" },
+                            { text: "The Cosmic Void", next: "voidRealm" }
+                        ]
+                    },
+                    divineRealm: {
+                        text: "Among the gods, desire takes many forms...",
+                        choices: [
+                            { text: "Follow the path of passion", next: "passionPath" },
+                            { text: "Seek divine knowledge", next: "knowledgePath" }
+                        ]
+                    }
+                };
+            }
+
+            getCurrentNode() {
+                let current = this.currentPath[this.currentPath.length - 1] || 'start';
+                return this.storyNodes[current];
+            }
+
+            makeChoice(choiceIndex) {
+                const currentNode = this.getCurrentNode();
+                const choice = currentNode.choices[choiceIndex];
+                this.currentPath.push(choice.next);
+                return this.getCurrentNode();
+            }
+        }
+
+        // Initialize Story System
+        const storySystem = new StorySystem();
+
+        // Mythology Quiz System
+        class MythologyQuiz {
+            constructor() {
+                this.questions = [
+                    {
+                        question: "Which divine force resonates with your spirit?",
+                        choices: ["Cosmic Fire", "Sacred Waters", "Ethereal Winds", "Earth's Power"],
+                        weights: {
+                            "Shiva": [3, 1, 2, 1],
+                            "Vishnu": [1, 3, 2, 1],
+                            "Kali": [3, 0, 2, 2],
+                            "Lakshmi": [1, 2, 1, 3]
+                        }
+                    }
+                ];
+                this.scores = {
+                    "Shiva": 0,
+                    "Vishnu": 0,
+                    "Kali": 0,
+                    "Lakshmi": 0
+                };
+            }
+
+            answerQuestion(questionIndex, choiceIndex) {
+                const question = this.questions[questionIndex];
+                Object.keys(this.scores).forEach(deity => {
+                    this.scores[deity] += question.weights[deity][choiceIndex];
+                });
+            }
+
+            getResult() {
+                return Object.entries(this.scores)
+                    .sort((a, b) => b[1] - a[1])[0][0];
+            }
+        }
+
+        // Initialize Quiz System
+        const mythologyQuiz = new MythologyQuiz();
+
+        // Advanced Animation System with WebGL Support Check
+        class AnimationSystem {
+            constructor() {
+                if (!this.checkWebGLSupport()) {
+                    console.warn('WebGL not supported. Skipping 3D animations.');
+                    return;
+                }
+
+                try {
+                    this.particleSystem = new THREE.Scene();
+                    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                    this.renderer = new THREE.WebGLRenderer({ alpha: true });
+                    
+                    this.setupScene();
+                    this.animate();
+                } catch (error) {
+                    console.error('Error initializing 3D animation system:', error);
+                }
+            }
+
+            checkWebGLSupport() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    return !!(window.WebGLRenderingContext && 
+                        (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            setupScene() {
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(this.renderer.domElement);
+                
+                const particles = new THREE.Points(
+                    new THREE.BufferGeometry(),
+                    new THREE.PointsMaterial({ color: 0xffd700, size: 0.1 })
+                );
+                
+                this.particleSystem.add(particles);
+                this.camera.position.z = 5;
+            }
+
+            animate() {
+                if (!this.renderer) return;
+                requestAnimationFrame(() => this.animate());
+                this.renderer.render(this.particleSystem, this.camera);
+            }
+        }
+
+        // Initialize Animation System after page load
+        window.addEventListener('load', () => {
+            const animationSystem = new AnimationSystem();
+        });
+
+        // Feature Cards Animation
+        const featureCards = document.querySelectorAll('.feature-card');
+        featureCards.forEach((card, index) => {
+            gsap.from(card, {
+                opacity: 0,
+                y: 50,
+                duration: 0.8,
+                delay: 0.2 * index,
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top bottom-=100',
+                    toggleActions: 'play none none reverse'
+                }
+            });
+        });
+
+        // Realm Cards Animation
+        const realmCards = document.querySelectorAll('.realm-card');
+        realmCards.forEach((card, index) => {
+            gsap.from(card, {
+                opacity: 0,
+                scale: 0.8,
+                duration: 1,
+                delay: 0.3 * index,
+                ease: 'power2.out',
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top bottom-=100',
+                    toggleActions: 'play none none reverse'
+                }
+            });
+
+            // Animate realm content
+            const content = card.querySelector('.realm-content');
+            gsap.from(content, {
+                y: 100,
+                opacity: 0,
+                duration: 0.8,
+                delay: 0.4 * index,
+                ease: 'power2.out',
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top bottom-=50',
+                    toggleActions: 'play none none reverse'
+                }
+            });
+        });
+
+        // Newsletter Section Parallax
+        gsap.to('.newsletter-section', {
+            backgroundPosition: '50% 100%',
+            ease: 'none',
+            scrollTrigger: {
+                trigger: '.newsletter-section',
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: true
+            }
+        });
+
+        // Section Headers Animation
+        document.querySelectorAll('.section-header').forEach(header => {
+            gsap.from(header.children, {
+                y: 50,
+                opacity: 0,
+                duration: 1,
+                stagger: 0.2,
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: header,
+                    start: 'top bottom-=100',
+                    toggleActions: 'play none none reverse'
+                }
+            });
+        });
+
+        // Footer Animation
+        gsap.from('.footer-section', {
+            y: 50,
+            opacity: 0,
+            duration: 1,
+            stagger: 0.2,
+            ease: 'power3.out',
+            scrollTrigger: {
+                trigger: '.site-footer',
+                start: 'top bottom-=50',
+                toggleActions: 'play none none reverse'
+            }
+        });
+
+        // Smooth Scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Dynamic Content Loading
+        class ContentLoader {
+            constructor() {
+                this.contentCache = new Map();
+                this.loadingQueue = [];
+            }
+
+            async loadContent(contentId) {
+                if (this.contentCache.has(contentId)) {
+                    return this.contentCache.get(contentId);
+                }
+
+                // Simulate content loading
+                const content = await new Promise(resolve => {
+                    setTimeout(() => {
+                        resolve({
+                            id: contentId,
+                            title: `Story ${contentId}`,
+                            content: `This is the content for story ${contentId}...`
+                        });
+                    }, 1000);
+                });
+
+                this.contentCache.set(contentId, content);
+                return content;
+            }
+        }
+
+        const contentLoader = new ContentLoader();
+
+        // User Preference System
+        class PreferenceSystem {
+            constructor() {
+                this.preferences = JSON.parse(localStorage.getItem('mythversePrefs')) || {
+                    theme: 'dark',
+                    contentLevel: 'moderate',
+                    narrativeStyle: 'immersive'
+                };
+            }
+
+            updatePreference(key, value) {
+                this.preferences[key] = value;
+                localStorage.setItem('mythversePrefs', JSON.stringify(this.preferences));
+                this.applyPreferences();
+            }
+
+            applyPreferences() {
+                document.body.setAttribute('data-theme', this.preferences.theme);
+                // Apply other preference-based changes
+            }
+        }
+
+        const preferenceSystem = new PreferenceSystem();
+        preferenceSystem.applyPreferences();
+    </script>
+</body>
+</html>
